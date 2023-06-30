@@ -1,13 +1,6 @@
-import { type ListOfTodos } from "../types";
+import { type Todo, type ListOfTodos } from "../types";
 
 const API_URL = "https://api.jsonbin.io/v3/b/649e07a0b89b1e2299b7630e";
-
-interface Todo {
-  id: string;
-  title: string;
-  completed: boolean;
-  order: number;
-}
 
 export const fetchTodos = async (): Promise<Todo[]> => {
   const res = await fetch(API_URL, {
@@ -21,7 +14,7 @@ export const fetchTodos = async (): Promise<Todo[]> => {
     return [];
   }
 
-  const { record: todos } = await res.json();
+  const { record: todos } = (await res.json()) as { record: Todo[] };
 
   return todos;
 };
