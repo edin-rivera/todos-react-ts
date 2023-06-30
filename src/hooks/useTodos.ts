@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import {
   type OnChangeTodo,
   type FilterValue,
@@ -10,6 +10,7 @@ import {
   type OnHandleUpdateTitle,
 } from "../types";
 import { TODO_FILTERS } from "../consts";
+import { fetchTodos, updateTodos } from "../services/todos";
 
 type Action =
   | { type: "INIT_TODOS"; payload: { todos: ListOfTodos } }
@@ -132,7 +133,7 @@ const reducer = (state: State, action: Action): State => {
 
 const initialState = {
   sync: false,
-  todos: mockTodos,
+  todos: [],
   filterSelected: TODO_FILTERS.ALL,
 };
 
@@ -187,6 +188,24 @@ export const useTodos = (): UseTodos => {
 
   const activeCount = todos.filter((t) => !t.completed).length;
   const completedCount = todos.length - activeCount;
+
+  useEffect(() => {
+    fetchTodos()
+      .then((todos) => {
+        dispatch({ type: "INIT_TODOS", payload: { todos } });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (sync) {
+      updateTodos({ todos }).catch((err) => {
+        console.error(err);
+      });
+    }
+  }, [todos, sync]);
 
   return {
     handleChange,
